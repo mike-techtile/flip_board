@@ -45,6 +45,7 @@ class FlipClock extends StatelessWidget {
     Color? separatorBackgroundColor,
     bool? showBorder,
     double? borderWidth,
+    this.initialValue,
     Color? borderColor,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(4.0)),
     double hingeWidth = 0.8,
@@ -85,13 +86,16 @@ class FlipClock extends StatelessWidget {
   final FlipClockBuilder _displayBuilder;
 
   final bool showSeconds;
+  final DateTime? initialValue;
 
   @override
   Widget build(BuildContext context) {
-    final initValue = DateTime.now();
+    final now = DateTime.now();
+    final initValue = initialValue ?? now;
+    final difference = now.difference(initValue);
     final timeStream = Stream<DateTime>.periodic(
       const Duration(seconds: 1),
-      (_) => DateTime.now(),
+      (_) => DateTime.now().subtract(difference),
     ).asBroadcastStream();
 
     return Row(
