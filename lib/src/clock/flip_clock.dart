@@ -52,21 +52,27 @@ class FlipClock extends StatelessWidget {
     double? hingeLength,
     Color? hingeColor,
     EdgeInsets digitSpacing = const EdgeInsets.symmetric(horizontal: 2.0),
-  })  : assert(hingeLength == null || hingeWidth == 0.0 && hingeLength == 0.0 || hingeWidth > 0.0 && hingeLength > 0.0),
-        assert((borderWidth == null && borderColor == null) || (showBorder == null || showBorder == true)),
+  })  : assert(hingeLength == null ||
+            hingeWidth == 0.0 && hingeLength == 0.0 ||
+            hingeWidth > 0.0 && hingeLength > 0.0),
+        assert((borderWidth == null && borderColor == null) ||
+            (showBorder == null || showBorder == true)),
         _displayBuilder = FlipClockBuilder(
           digitSize: digitSize,
           width: width,
           height: height,
           flipDirection: flipDirection,
-          flipCurve:
-              flipCurve ?? (flipDirection == AxisDirection.down ? FlipWidget.bounceFastFlip : FlipWidget.defaultFlip),
+          flipCurve: flipCurve ??
+              (flipDirection == AxisDirection.down
+                  ? FlipWidget.bounceFastFlip
+                  : FlipWidget.defaultFlip),
           digitColor: digitColor,
           backgroundColor: backgroundColor,
           separatorWidth: separatorWidth ?? width / 3.0,
           separatorColor: separatorColor,
           separatorBackgroundColor: separatorBackgroundColor,
-          showBorder: showBorder ?? (borderColor != null || borderWidth != null),
+          showBorder:
+              showBorder ?? (borderColor != null || borderWidth != null),
           borderWidth: borderWidth,
           borderColor: borderColor,
           borderRadius: borderRadius,
@@ -74,7 +80,10 @@ class FlipClock extends StatelessWidget {
           hingeLength: hingeWidth == 0.0
               ? 0.0
               : hingeLength ??
-                  (flipDirection == AxisDirection.down || flipDirection == AxisDirection.up ? width : height),
+                  (flipDirection == AxisDirection.down ||
+                          flipDirection == AxisDirection.up
+                      ? width
+                      : height),
           hingeColor: hingeColor,
           digitSpacing: digitSpacing,
         ),
@@ -90,35 +99,42 @@ class FlipClock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DateTime fixedStartPoint = DateTime(1970, 1, 1);
     final now = DateTime.now();
     final initValue = initialValue ?? now;
-    final difference = now.difference(initValue);
+
     final timeStream = Stream<DateTime>.periodic(
       const Duration(seconds: 1),
-      (_) => DateTime.now().subtract(difference),
+      (_) {
+        final Duration durationSinceInit = DateTime.now().difference(initValue);
+        return fixedStartPoint.add(durationSinceInit);
+      },
     ).asBroadcastStream();
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _buildHourDisplay(timeStream, initValue),
+        _buildHourDisplay(timeStream, fixedStartPoint),
         _displayBuilder.buildSeparator(context),
-        _buildMinuteDisplay(timeStream, initValue),
+        _buildMinuteDisplay(timeStream, fixedStartPoint),
         if (showSeconds) ...[
           _displayBuilder.buildSeparator(context),
-          _buildSecondDisplay(timeStream, initValue),
+          _buildSecondDisplay(timeStream, fixedStartPoint),
         ],
       ],
     );
   }
 
   Widget _buildHourDisplay(Stream<DateTime> timeStream, DateTime initValue) =>
-      _displayBuilder.buildTimePartDisplay(timeStream.map((time) => time.hour), initValue.hour);
+      _displayBuilder.buildTimePartDisplay(
+          timeStream.map((time) => time.hour), initValue.hour);
 
   Widget _buildMinuteDisplay(Stream<DateTime> timeStream, DateTime initValue) =>
-      _displayBuilder.buildTimePartDisplay(timeStream.map((time) => time.minute), initValue.minute);
+      _displayBuilder.buildTimePartDisplay(
+          timeStream.map((time) => time.minute), initValue.minute);
 
   Widget _buildSecondDisplay(Stream<DateTime> timeStream, DateTime initValue) =>
-      _displayBuilder.buildTimePartDisplay(timeStream.map((time) => time.second), initValue.second);
+      _displayBuilder.buildTimePartDisplay(
+          timeStream.map((time) => time.second), initValue.second);
 }
