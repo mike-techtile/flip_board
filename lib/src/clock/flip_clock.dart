@@ -116,10 +116,10 @@ class FlipClock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildHourDisplay(timeStream, fixedStartPoint),
-        _displayBuilder.buildSeparator(context),
+        _displayBuilder.buildSeparator(context, ":"),
         _buildMinuteDisplay(timeStream, fixedStartPoint),
         if (showSeconds) ...[
-          _displayBuilder.buildSeparator(context),
+          _displayBuilder.buildSeparator(context, ":"),
           _buildSecondDisplay(timeStream, fixedStartPoint),
         ],
       ],

@@ -38,6 +38,8 @@ class FlipCountdownClock extends StatelessWidget {
     required double digitSize,
     required double width,
     required double height,
+    this.showSeconds = true,
+    this.showSeparatorString = false,
     AxisDirection flipDirection = AxisDirection.up,
     Curve? flipCurve,
     Color? digitColor,
@@ -66,7 +68,8 @@ class FlipCountdownClock extends StatelessWidget {
           separatorWidth: separatorWidth ?? width / 3.0,
           separatorColor: separatorColor,
           separatorBackgroundColor: separatorBackgroundColor,
-          showBorder: showBorder ?? (borderColor != null || borderWidth != null),
+          showBorder:
+              showBorder ?? (borderColor != null || borderWidth != null),
           borderWidth: borderWidth,
           borderColor: borderColor,
           borderRadius: borderRadius,
@@ -74,7 +77,10 @@ class FlipCountdownClock extends StatelessWidget {
           hingeLength: hingeWidth == 0.0
               ? 0.0
               : hingeLength ??
-                  (flipDirection == AxisDirection.down || flipDirection == AxisDirection.up ? width : height),
+                  (flipDirection == AxisDirection.down ||
+                          flipDirection == AxisDirection.up
+                      ? width
+                      : height),
           hingeColor: hingeColor,
           digitSpacing: digitSpacing,
         );
@@ -91,7 +97,8 @@ class FlipCountdownClock extends StatelessWidget {
   final FlipClockBuilder _displayBuilder;
 
   final bool _showHours;
-
+  final bool showSeconds;
+  final bool showSeparatorString;
   @override
   Widget build(BuildContext context) {
     const step = Duration(seconds: 1);
@@ -124,26 +131,37 @@ class FlipCountdownClock extends StatelessWidget {
       children: [
         if (_showHours) ...[
           _buildHoursDisplay(durationStream, duration),
-          _displayBuilder.buildSeparator(context),
+          _displayBuilder.buildSeparator(context, showSeparatorString? 'h' : ':'),
+        ],
+        if(!_showHours) ...[
+          _buildZeroHoursDisplay(),
+          _displayBuilder.buildSeparator(context, showSeparatorString? 'h' : ':'),
         ],
         _buildMinutesDisplay(durationStream, duration),
-        _displayBuilder.buildSeparator(context),
-        _buildSecondsDisplay(durationStream, duration),
+        if (showSeconds) ...[
+          _displayBuilder.buildSeparator(context, showSeparatorString? 'm' : ':'),
+          _buildSecondsDisplay(durationStream, duration),
+        ],
       ],
     );
   }
 
-  Widget _buildHoursDisplay(Stream<Duration> stream, Duration initValue) => _displayBuilder.buildTimePartDisplay(
+  Widget _buildHoursDisplay(Stream<Duration> stream, Duration initValue) =>
+      _displayBuilder.buildTimePartDisplay(
         stream.map((time) => time.inHours % 24),
         initValue.inHours % 24,
       );
 
-  Widget _buildMinutesDisplay(Stream<Duration> stream, Duration initValue) => _displayBuilder.buildTimePartDisplay(
+  Widget _buildZeroHoursDisplay() => _displayBuilder.buildZeroTimePartDisplay();
+
+  Widget _buildMinutesDisplay(Stream<Duration> stream, Duration initValue) =>
+      _displayBuilder.buildTimePartDisplay(
         stream.map((time) => time.inMinutes % 60),
         initValue.inMinutes % 60,
       );
 
-  Widget _buildSecondsDisplay(Stream<Duration> stream, Duration initValue) => _displayBuilder.buildTimePartDisplay(
+  Widget _buildSecondsDisplay(Stream<Duration> stream, Duration initValue) =>
+      _displayBuilder.buildTimePartDisplay(
         stream.map((time) => time.inSeconds % 60),
         initValue.inSeconds % 60,
       );

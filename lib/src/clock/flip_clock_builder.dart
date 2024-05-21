@@ -113,6 +113,25 @@ class FlipClockBuilder {
         ],
       );
 
+  Widget buildZeroTimePartDisplay() {
+    Stream<int> zeroStream(Duration interval, [int? maxCount]) async* {
+      int i = 0;
+      while (true) {
+        await Future.delayed(interval);
+        i++;
+        yield 0;
+        if (i == maxCount) break;
+      }
+    }
+
+    return Row(
+      children: [
+        _buildTensDisplay(zeroStream(const Duration(hours: 1)), 0),
+        _buildUnitsDisplay(zeroStream(const Duration(hours: 1)), 0),
+      ],
+    );
+  }
+
   Widget _buildTensDisplay(Stream<int> timePartStream, int initialValue) =>
       _buildDisplay(
         timePartStream.map<int>((value) => value ~/ 10),
@@ -172,7 +191,7 @@ class FlipClockBuilder {
   /// Builds a display separator for time parts.
   ///
   /// This separator is a ":" Text in clock display style.
-  Widget buildSeparator(BuildContext context) => Column(
+  Widget buildSeparator(BuildContext context, String separatorString) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
@@ -186,7 +205,7 @@ class FlipClockBuilder {
               height: height,
               alignment: Alignment.center,
               child: Text(
-                ':',
+                separatorString,
                 style: TextStyle(
                     fontSize: digitSize - 4,
                     color: separatorColor ??

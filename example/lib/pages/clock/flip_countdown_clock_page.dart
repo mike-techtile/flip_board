@@ -25,7 +25,9 @@ class FlipCountdownClockPage extends StatelessWidget {
             ),
             padding: const EdgeInsets.all(24.0),
             child: FlipCountdownClock(
-              duration: const Duration(minutes: 1),
+              duration: const Duration(minutes: 45),
+              showSeparatorString: true,
+              showSeconds: false,
               digitSize: 54.0,
               width: 46.0,
               height: 62.0,
